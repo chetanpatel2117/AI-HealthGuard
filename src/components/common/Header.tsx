@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Bell, User as UserIcon, LogOut, Check, Smartphone, Cpu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { NotificationItem } from '../../types';
+import { apiFetch } from '../../lib/api';
 
 interface HeaderProps {
   activeTab: string;
@@ -19,7 +20,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
-    fetch('/api/notifications')
+    apiFetch('/api/notifications')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setNotifications(data);
@@ -31,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
 
   const handleMarkRead = (id: string) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-    fetch('/api/notifications/read', {
+    apiFetch('/api/notifications/read', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notificationId: id }),

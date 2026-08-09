@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { Upload, FileText, CheckCircle2, Sparkles, ArrowRight, Shield, AlertCircle } from 'lucide-react';
 import { LabReportExtracted } from '../types';
+import { apiFetch } from '../lib/api';
 
 interface OCRUploadPageProps {
   onAutoFillPrediction: (extracted: LabReportExtracted) => void;
@@ -25,7 +26,7 @@ export const OCRUploadPage: React.FC<OCRUploadPageProps> = ({ onAutoFillPredicti
         const base64Str = (reader.result as string).split(',')[1];
         const mimeType = file.type || 'image/png';
 
-        const res = await fetch('/api/ocr/upload', {
+        const res = await apiFetch('/api/ocr/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ base64Image: base64Str, mimeType }),

@@ -5,6 +5,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bot, Send, Mic, MicOff, Volume2, VolumeX, Download, Sparkles, User, RefreshCw } from 'lucide-react';
 import { ChatMessage } from '../types';
+import { apiFetch } from '../lib/api';
 
 interface AIAssistantPageProps {
   initialPrompt?: string;
@@ -21,7 +22,7 @@ export const AIAssistantPage: React.FC<AIAssistantPageProps> = ({ initialPrompt 
 
   useEffect(() => {
     // Load initial chat history from backend
-    fetch('/api/gemini/chat/history')
+    apiFetch('/api/gemini/chat/history')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -60,7 +61,7 @@ export const AIAssistantPage: React.FC<AIAssistantPageProps> = ({ initialPrompt 
     setLoading(true);
 
     try {
-      const res = await fetch('/api/gemini/chat', {
+      const res = await apiFetch('/api/gemini/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: messageText }),

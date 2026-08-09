@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { History, Search, Download, Trash2, Eye, FileSpreadsheet, ArrowUpDown } from 'lucide-react';
 import { PredictionResult } from '../types';
+import { apiFetch } from '../lib/api';
 import * as XLSX from 'xlsx';
 
 interface HistoryPageProps {
@@ -22,7 +23,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ onViewResult }) => {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch('/api/history');
+      const res = await apiFetch('/api/history');
       const data = await res.json();
       if (Array.isArray(data)) setRecords(data);
     } catch (e) {
@@ -32,7 +33,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ onViewResult }) => {
 
   const handleDelete = async (id: string) => {
     try {
-      await fetch(`/api/history/${id}`, { method: 'DELETE' });
+      await apiFetch(`/api/history/${id}`, { method: 'DELETE' });
       setRecords((prev) => prev.filter((r) => r.id !== id));
     } catch (e) {
       console.error('Failed to delete record:', e);

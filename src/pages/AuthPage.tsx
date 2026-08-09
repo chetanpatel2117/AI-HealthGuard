@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { Shield, Lock, Mail, User, Phone, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { apiFetch } from '../lib/api';
 
 export const AuthPage: React.FC = () => {
   const { login } = useAuth();
@@ -32,7 +33,7 @@ export const AuthPage: React.FC = () => {
         ? { fullName, email, password, age, gender, phone }
         : { email, password };
 
-      const res = await fetch(endpoint, {
+      const res = await apiFetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

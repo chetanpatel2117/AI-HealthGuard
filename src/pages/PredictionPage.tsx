@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { Activity, Cpu, Upload, Sparkles, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import { PredictionInput } from '../types';
 import { MLEngine } from '../server/mlEngine';
+import { apiFetch } from '../lib/api';
 
 interface PredictionPageProps {
   onPredictSuccess: (result: any) => void;
@@ -53,7 +54,7 @@ export const PredictionPage: React.FC<PredictionPageProps> = ({
     setError('');
 
     try {
-      const res = await fetch('/api/predict', {
+      const res = await apiFetch('/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

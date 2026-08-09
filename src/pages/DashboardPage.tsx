@@ -9,6 +9,7 @@ import { HealthSnapshotCard } from '../components/dashboard/HealthSnapshot';
 import { ChartsSection } from '../components/dashboard/ChartsSection';
 import { AITipCard } from '../components/dashboard/AITipCard';
 import { PredictionResult } from '../types';
+import { apiFetch } from '../lib/api';
 import { Calendar, ShieldAlert, ArrowRight, Activity, Clock, CheckCircle2 } from 'lucide-react';
 
 interface DashboardProps {
@@ -20,7 +21,7 @@ export const DashboardPage: React.FC<DashboardProps> = ({ onNavigate }) => {
   const [history, setHistory] = useState<PredictionResult[]>([]);
 
   useEffect(() => {
-    fetch('/api/history')
+    apiFetch('/api/history')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setHistory(data);
