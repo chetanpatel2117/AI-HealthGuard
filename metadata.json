@@ -1,0 +1,6 @@
+{
+  "name": "AI HealthGuard",
+  "description": "Medical Shield Heartbeat - AI-Powered Diabetes Prediction & Health Assistant Platform",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
