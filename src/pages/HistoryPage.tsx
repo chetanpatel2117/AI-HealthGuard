@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { History, Search, Download, Trash2, Eye, FileSpreadsheet, ArrowUpDown } from 'lucide-react';
 import { PredictionResult } from '../types';
-import * as XLSX from 'xlsx';
+// Replaced Excel export (xlsx) with lightweight CSV download to avoid vulnerable dependency
 
 interface HistoryPageProps {
   onViewResult: (result: PredictionResult) => void;
@@ -39,6 +39,33 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ onViewResult }) => {
     }
   };
 
+  const downloadCSV = (filename: string, rows: any[]) => {
+    if (!rows || rows.length === 0) return;
+    const headers = Object.keys(rows[0]);
+    const csv = [
+      headers.join(','),
+      ...rows.map((r) =>
+        headers
+          .map((h) => {
+            const v = r[h] ?? '';
+            const s = String(v).replace(/"/g, '""');
+            return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s}"` : s;
+          })
+          .join(',')
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const handleExportAll = () => {
     const exportData = records.map((r) => ({
       ID: r.id,
@@ -57,10 +84,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ onViewResult }) => {
       Model: r.selectedModel,
     }));
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'All_Predictions');
-    XLSX.writeFile(wb, `HealthGuard_All_Records_${Date.now()}.xlsx`);
+    downloadCSV(`HealthGuard_All_Records_${Date.now()}.csv`, exportData);
   };
 
   const filteredRecords = records.filter((r) => {
@@ -87,7 +111,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ onViewResult }) => {
           className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center space-x-2 shrink-0"
         >
           <FileSpreadsheet className="w-4 h-4" />
-          <span>Export All Records (Excel)</span>
+          <span>Export All Records (CSV)</span>
         </button>
       </div>
 

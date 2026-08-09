@@ -4,7 +4,7 @@
 
 import { Router, Request, Response } from 'express';
 import { GeminiService } from '../geminiService.js';
-import { db } from '../db.js';
+import { db } from '../mongoDb.js';
 import { ChatMessage } from '../../types/index.js';
 
 const router = Router();
@@ -24,7 +24,7 @@ router.post('/gemini/chat', async (req: Request, res: Response) => {
       text: message,
       timestamp: new Date().toISOString(),
     };
-    db.saveChatMessage(userId, userMsgObj);
+    await db.saveChatMessage(userId, userMsgObj);
 
     // Call Gemini API
     const replyText = await GeminiService.chat(message);
@@ -35,7 +35,7 @@ router.post('/gemini/chat', async (req: Request, res: Response) => {
       text: replyText,
       timestamp: new Date().toISOString(),
     };
-    db.saveChatMessage(userId, aiMsgObj);
+    await db.saveChatMessage(userId, aiMsgObj);
 
     return res.json({ reply: replyText, message: aiMsgObj });
   } catch (error) {
@@ -45,9 +45,9 @@ router.post('/gemini/chat', async (req: Request, res: Response) => {
 });
 
 // GET CHAT HISTORY
-router.get('/gemini/chat/history', (req: Request, res: Response) => {
+router.get('/gemini/chat/history', async (req: Request, res: Response) => {
   const userId = (req.query.userId as string) || 'usr_demo_101';
-  const history = db.getChatHistory(userId);
+  const history = await db.getChatHistory(userId);
   return res.json(history);
 });
 
@@ -83,17 +83,17 @@ router.post('/ocr/upload', async (req: Request, res: Response) => {
 });
 
 // GET NOTIFICATIONS
-router.get('/notifications', (req: Request, res: Response) => {
+router.get('/notifications', async (req: Request, res: Response) => {
   const userId = (req.query.userId as string) || 'usr_demo_101';
-  const notifs = db.getNotifications(userId);
+  const notifs = await db.getNotifications(userId);
   return res.json(notifs);
 });
 
 // MARK NOTIFICATION READ
-router.post('/notifications/read', (req: Request, res: Response) => {
+router.post('/notifications/read', async (req: Request, res: Response) => {
   const { userId = 'usr_demo_101', notificationId } = req.body;
   if (notificationId) {
-    db.markNotificationRead(userId, notificationId);
+    await db.markNotificationRead(userId, notificationId);
   }
   return res.json({ success: true });
 });

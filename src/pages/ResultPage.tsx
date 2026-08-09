@@ -8,7 +8,7 @@ import { RiskGauge } from '../components/common/RiskGauge';
 import { SHAPPlot } from '../components/common/SHAPPlot';
 import { Shield, FileText, Download, Bot, ArrowLeft, CheckCircle2, AlertTriangle, Stethoscope, Sparkles } from 'lucide-react';
 import jsPDF from 'jspdf';
-import * as XLSX from 'xlsx';
+// Use CSV export instead of xlsx due to upstream vulnerabilities in the xlsx package
 
 interface ResultPageProps {
   result: PredictionResult;
@@ -68,7 +68,34 @@ export const ResultPage: React.FC<ResultPageProps> = ({ result, onBack, onNaviga
     }
   };
 
-  // Excel / CSV Export Handler
+  // CSV Export Handler
+  const downloadCSV = (filename: string, rows: any[]) => {
+    if (!rows || rows.length === 0) return;
+    const headers = Object.keys(rows[0]);
+    const csv = [
+      headers.join(','),
+      ...rows.map((r) =>
+        headers
+          .map((h) => {
+            const v = r[h] ?? '';
+            const s = String(v).replace(/"/g, '""');
+            return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s}"` : s;
+          })
+          .join(',')
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const handleExportExcel = () => {
     try {
       const data = [
@@ -86,12 +113,9 @@ export const ResultPage: React.FC<ResultPageProps> = ({ result, onBack, onNaviga
         { Parameter: 'ML Engine Model', Value: result.selectedModel },
       ];
 
-      const ws = XLSX.utils.json_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Diabetes_Report');
-      XLSX.writeFile(wb, `HealthGuard_Report_${result.patientName.replace(/\s+/g, '_')}.xlsx`);
+      downloadCSV(`HealthGuard_Report_${result.patientName.replace(/\s+/g, '_')}.csv`, data);
     } catch (e) {
-      console.error('Excel export error:', e);
+      console.error('CSV export error:', e);
     }
   };
 
@@ -127,7 +151,7 @@ export const ResultPage: React.FC<ResultPageProps> = ({ result, onBack, onNaviga
           <button
             onClick={handleExportExcel}
             className="px-3 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors flex items-center space-x-1"
-            title="Export Excel / CSV"
+            title="Export CSV"
           >
             <Download className="w-4 h-4" />
           </button>

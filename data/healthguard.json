@@ -20,12 +20,127 @@
         "phone": "+1 (555) 987-6543"
       },
       "createdAt": "2026-07-10T12:41:01.615Z"
+    },
+    {
+      "id": "usr_1786290308272",
+      "fullName": "chetan",
+      "email": "chetan01@gmail.com",
+      "age": 29,
+      "gender": "Male",
+      "weight": 70,
+      "height": 165,
+      "phone": "+1 (555) 234-5678",
+      "role": "Patient",
+      "createdAt": "2026-08-09T15:45:08.272Z"
     }
   ],
   "passwords": {
-    "usr_demo_101": "$2a$10$e8T1H9X5dZ6A8K8Q0L7N.uW3u8Y3u8Y3u8Y3u8Y3u8Y3u8Y3u8Y3u"
+    "usr_demo_101": "$2a$10$e8T1H9X5dZ6A8K8Q0L7N.uW3u8Y3u8Y3u8Y3u8Y3u8Y3u8Y3u8Y3u",
+    "usr_1786290308272": "$2b$10$HV51EB8kLMYHdhYYiDTRI.NZbfX5tWt5t1Le7hIa0jwbsJiYmNP7S"
   },
   "predictions": [
+    {
+      "id": "pred_1786289503430",
+      "userId": "usr_python_console",
+      "timestamp": "2026-08-09T15:31:43.430Z",
+      "patientName": "David Miller",
+      "age": 45,
+      "bmi": 28.4,
+      "bmiCategory": "Overweight",
+      "glucose": 154,
+      "bloodPressure": 86,
+      "pregnancies": 0,
+      "skinThickness": 32,
+      "insulin": 140,
+      "diabetesPedigree": 0.68,
+      "probability": 98,
+      "healthScore": 17,
+      "riskLevel": "Severe Risk",
+      "selectedModel": "Voting Ensemble (Random Forest + XGBoost + Logistic)",
+      "modelAccuracy": 92.4,
+      "shapContributions": [
+        {
+          "feature": "glucose",
+          "displayName": "Fasting Glucose",
+          "value": "154 mg/dL",
+          "shapValue": 0.19,
+          "impact": "High Risk Factor",
+          "explanation": "Glucose level (154 mg/dL) is above baseline, increasing risk by +19%."
+        },
+        {
+          "feature": "age",
+          "displayName": "Patient Age",
+          "value": "45 yrs",
+          "shapValue": 0.08,
+          "impact": "Moderate Risk Factor",
+          "explanation": "Age component contributes +8% based on age demographic baselines."
+        },
+        {
+          "feature": "bmi",
+          "displayName": "Body Mass Index (BMI)",
+          "value": "28.4 kg/m²",
+          "shapValue": -0.06,
+          "impact": "Protective Factor",
+          "explanation": "Optimal BMI of 28.4 acts as a key protective factor against metabolic syndrome."
+        },
+        {
+          "feature": "diabetesPedigree",
+          "displayName": "Diabetes Pedigree Function",
+          "value": "0.68",
+          "shapValue": 0.05,
+          "impact": "Protective Factor",
+          "explanation": "Family genetic marker (0.68) increases hereditary predisposition."
+        },
+        {
+          "feature": "insulin",
+          "displayName": "Serum Insulin",
+          "value": "140 µU/ml",
+          "shapValue": 0.03,
+          "impact": "Protective Factor",
+          "explanation": "2-Hour serum insulin (140 µU/ml) reflects pancreatic response dynamics."
+        },
+        {
+          "feature": "bloodPressure",
+          "displayName": "Blood Pressure",
+          "value": "86 mmHg",
+          "shapValue": 0.02,
+          "impact": "Protective Factor",
+          "explanation": "Diastolic BP (86 mmHg) slightly elevates vascular metabolism."
+        }
+      ],
+      "aiSummary": "ML Ensemble evaluation calculates a 98% risk probability (Severe Risk). The primary feature influencing this score is Fasting Glucose (154 mg/dL). Glucose level (154 mg/dL) is above baseline, increasing risk by +19%.",
+      "doctorRecommendations": [
+        "Consult an Endocrinologist for formal Fasting HbA1c & Oral Glucose Tolerance Testing.",
+        "Screen for hypertension and kidney function (Serum Creatinine & Microalbuminuria).",
+        "Evaluate baseline lipid panel (Triglycerides, HDL, LDL cholesterol).",
+        "Discuss potential Metformin or early lifestyle intervention therapy."
+      ],
+      "lifestyleAdvice": [
+        "Limit refined sugar, white bread, processed carbs, and sweetened beverages.",
+        "Aim for 5-7% weight reduction, which can lower diabetes risk by up to 58%.",
+        "Continue regular physical activity; add resistance training twice a week for glucose uptake.",
+        "Prioritize 7-8 hours of restful sleep daily to regulate cortisol and morning ghrelin levels."
+      ],
+      "inputData": {
+        "fullName": "David Miller",
+        "age": 45,
+        "gender": "Male",
+        "weight": 84,
+        "height": 172,
+        "pregnancies": 0,
+        "glucose": 154,
+        "bloodPressure": 86,
+        "skinThickness": 32,
+        "insulin": 140,
+        "diabetesPedigree": 0.68,
+        "smokingStatus": "Former",
+        "alcoholConsumption": "Occasional",
+        "exerciseLevel": "Moderate",
+        "familyHistory": true,
+        "selectedModel": "Voting Ensemble (Random Forest + XGBoost + Logistic)",
+        "userId": "usr_python_console"
+      }
+    },
     {
       "id": "pred_py_1786279482181",
       "userId": "usr_demo_101",

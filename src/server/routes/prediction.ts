@@ -4,7 +4,7 @@
 
 import { Router, Request, Response } from 'express';
 import { PythonBridge } from '../pythonBridge.js';
-import { db } from '../db.js';
+import { db } from '../mongoDb.js';
 import { PredictionInput } from '../../types/index.js';
 
 const router = Router();
@@ -24,7 +24,7 @@ router.post('/predict', async (req: Request, res: Response) => {
     const result = await PythonBridge.predict(input, userId);
 
     // Save to SQLite DB
-    db.savePrediction(result);
+    await db.savePrediction(result);
 
     return res.status(201).json(result);
   } catch (error) {
@@ -61,16 +61,16 @@ router.get('/python/status', async (_req: Request, res: Response) => {
 });
 
 // GET HISTORY
-router.get('/history', (req: Request, res: Response) => {
+router.get('/history', async (req: Request, res: Response) => {
   const userId = (req.query.userId as string) || 'usr_demo_101';
-  const history = db.getPredictionsByUserId(userId);
+  const history = await db.getPredictionsByUserId(userId);
   return res.json(history);
 });
 
 // DELETE HISTORY ITEM
-router.delete('/history/:id', (req: Request, res: Response) => {
+router.delete('/history/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
-  const deleted = db.deletePrediction(id);
+  const deleted = await db.deletePrediction(id);
   if (deleted) {
     return res.json({ message: 'Prediction deleted successfully', id });
   }

@@ -346,6 +346,48 @@ class Database {
       }
     }
   }
+
+  // Remove all user-related data from the database. Returns true if removed.
+  clearUserData(userId: string): boolean {
+    let removed = false;
+
+    // Remove user record
+    const prevUsersLen = this.schema.users.length;
+    this.schema.users = this.schema.users.filter((u) => u.id !== userId);
+    if (this.schema.users.length !== prevUsersLen) removed = true;
+
+    // Remove password
+    if (this.schema.passwords[userId]) {
+      delete this.schema.passwords[userId];
+      removed = true;
+    }
+
+    // Remove predictions
+    const prevPredLen = this.schema.predictions.length;
+    this.schema.predictions = this.schema.predictions.filter((p) => p.userId !== userId);
+    if (this.schema.predictions.length !== prevPredLen) removed = true;
+
+    // Remove chats
+    if (this.schema.aiChats[userId]) {
+      delete this.schema.aiChats[userId];
+      removed = true;
+    }
+
+    // Remove notifications
+    if (this.schema.notifications[userId]) {
+      delete this.schema.notifications[userId];
+      removed = true;
+    }
+
+    // Remove settings
+    if (this.schema.settings[userId]) {
+      delete this.schema.settings[userId];
+      removed = true;
+    }
+
+    if (removed) this.save();
+    return removed;
+  }
 }
 
 export const db = new Database();

@@ -11,7 +11,8 @@ import geminiRoutes from './src/server/routes/gemini.js';
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+  const HOST = process.env.HOST || '0.0.0.0';
 
   // Middleware
   app.use(express.json({ limit: '20mb' }));
@@ -48,8 +49,9 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🏥 AI HealthGuard Server running on http://0.0.0.0:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    const displayHost = HOST === '0.0.0.0' ? 'localhost' : HOST;
+    console.log(`🏥 AI HealthGuard Server running on http://${displayHost}:${PORT}`);
   });
 }
 

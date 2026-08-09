@@ -17,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     fetch('/api/notifications')
@@ -41,15 +42,14 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'predict', label: 'Diabetes Test' },
-    { id: 'python-backend', label: 'Python 3.10' },
     { id: 'ai-assistant', label: 'AI Assistant' },
     { id: 'diet-exercise', label: 'Diet & Fitness' },
     { id: 'analytics', label: 'Analytics' },
     { id: 'history', label: 'History' },
-    { id: 'android', label: 'Android APK' },
   ];
 
   return (
+    <>
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-emerald-100/80 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
         {/* Brand Logo */}
@@ -191,31 +191,11 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
                   <UserIcon className="w-3.5 h-3.5" /> Medical Profile
                 </button>
 
-                <button
-                  onClick={() => {
-                    setActiveTab('android');
-                    setShowUserMenu(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl font-medium flex items-center gap-2"
-                >
-                  <Smartphone className="w-3.5 h-3.5" /> Android App Guide
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveTab('analytics');
-                    setShowUserMenu(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl font-medium flex items-center gap-2"
-                >
-                  <Cpu className="w-3.5 h-3.5" /> ML Benchmarks
-                </button>
-
                 <div className="border-t border-slate-100 my-1"></div>
 
                 <button
                   onClick={() => {
-                    logout();
+                    setShowLogoutConfirm(true);
                     setShowUserMenu(false);
                   }}
                   className="w-full text-left px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-xl font-medium flex items-center gap-2"
@@ -228,5 +208,65 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
         </div>
       </div>
     </header>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md border border-slate-100">
+            <h3 className="text-lg font-bold text-slate-900">Confirm Sign Out</h3>
+            <p className="text-sm text-slate-600 mt-2">Are you sure you want to sign out? This will clear local data from this browser.</p>
+            <div className="mt-4 flex justify-end space-x-2">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-3 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  // Attempt to clear server-side user data
+                  try {
+                    const token = localStorage.getItem('healthguard_token');
+                    if (token) {
+                      await fetch('/api/auth/clear-data', {
+                        method: 'POST',
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                    }
+                  } catch (e) {
+                    console.warn('Server-side clear failed:', e);
+                  }
+
+                  // Clear client-side storage
+                  try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+
+                    // Attempt to delete all IndexedDB databases (if supported)
+                    if ((indexedDB as any).databases) {
+                      const dbs = await (indexedDB as any).databases();
+                      await Promise.all(dbs.map((d: any) => indexedDB.deleteDatabase(d.name)));
+                    }
+                  } catch (e) {
+                    console.warn('Client storage clear failed:', e);
+                  }
+
+                  logout();
+                  try {
+                    setActiveTab('auth');
+                  } catch (e) {
+                    // no-op if setActiveTab not available
+                  }
+                  setShowLogoutConfirm(false);
+                }}
+                className="px-3 py-2 rounded-xl bg-rose-600 text-white text-xs"
+              >
+                Yes, Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

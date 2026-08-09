@@ -27,14 +27,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, category: 'Main' },
     { id: 'predict', label: 'Diabetes Risk Test', icon: Activity, category: 'Clinical ML' },
-    { id: 'python-backend', label: 'Python 3.10 Backend', icon: Terminal, category: 'Python ML' },
     { id: 'ai-assistant', label: 'Gemini Health Assistant', icon: Bot, category: 'AI Intelligence' },
     { id: 'diet-exercise', label: 'Diet & Fitness Planner', icon: Utensils, category: 'Wellness' },
     { id: 'ocr', label: 'Lab Report Vision OCR', icon: Upload, category: 'Clinical ML' },
     { id: 'history', label: 'Prediction Records', icon: History, category: 'Database' },
     { id: 'analytics', label: 'Model Benchmarks', icon: BarChart2, category: 'Database' },
     { id: 'profile', label: 'Patient Profile', icon: User, category: 'User' },
-    { id: 'android-guide', label: 'Android APK Conversion', icon: Smartphone, category: 'User' },
   ];
 
   return (

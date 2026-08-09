@@ -5,7 +5,7 @@
 import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { db } from '../db.js';
+import { db } from '../mongoDb.js';
 import { User } from '../../types/index.js';
 
 const router = Router();
@@ -34,7 +34,7 @@ router.post('/register', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Full name, email, and password are required' });
     }
 
-    const existing = db.getUserByEmail(email);
+    const existing = await db.getUserByEmail(email);
     if (existing) {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
@@ -55,7 +55,7 @@ router.post('/register', async (req: Request, res: Response) => {
       createdAt: new Date().toISOString(),
     };
 
-    db.createUser(newUser, passwordHash);
+    await db.createUser(newUser, passwordHash);
     const token = generateToken(newUser);
 
     return res.status(201).json({
@@ -78,12 +78,12 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = db.getUserByEmail(email);
+    const user = await db.getUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const passwordHash = db.getPasswordHash(user.id);
+    const passwordHash = await db.getPasswordHash(user.id);
     if (passwordHash) {
       const match = await bcrypt.compare(password, passwordHash);
       if (!match && password !== 'healthguard123') {
@@ -104,25 +104,25 @@ router.post('/login', async (req: Request, res: Response) => {
 });
 
 // GET ME
-router.get('/me', (req: Request, res: Response) => {
+router.get('/me', async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     // Return demo user for instant seamless experience
-    const demo = db.getUserById('usr_demo_101');
+    const demo = await db.getUserById('usr_demo_101');
     return res.json({ user: demo });
   }
 
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const user = db.getUserById(decoded.id);
+    const user = await db.getUserById(decoded.id);
     if (!user) {
-      const demo = db.getUserById('usr_demo_101');
+      const demo = await db.getUserById('usr_demo_101');
       return res.json({ user: demo });
     }
     return res.json({ user });
   } catch (err) {
-    const demo = db.getUserById('usr_demo_101');
+    const demo = await db.getUserById('usr_demo_101');
     return res.json({ user: demo });
   }
 });
@@ -134,6 +134,25 @@ router.post('/reset-password', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Email is required' });
   }
   return res.json({ message: `Password reset link sent successfully to ${email}` });
+});
+
+// Clear user data endpoint
+router.post('/clear-data', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const userId = decoded.id;
+    const removed = await db.clearUserData(userId);
+    if (removed) return res.json({ message: 'User data cleared' });
+    return res.status(404).json({ message: 'No user data found to remove' });
+  } catch (err) {
+    console.error('Clear data error:', err);
+    return res.status(401).json({ error: 'Invalid token' });
+  }
 });
 
 export default router;
