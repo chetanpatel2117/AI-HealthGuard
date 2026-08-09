@@ -6,7 +6,6 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Bell, User as UserIcon, LogOut, Check, Smartphone, Cpu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { NotificationItem } from '../../types';
-import { apiFetch } from '../../lib/api';
 
 interface HeaderProps {
   activeTab: string;
@@ -20,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
-    apiFetch('/api/notifications')
+    fetch('/api/notifications')
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setNotifications(data);
@@ -32,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
 
   const handleMarkRead = (id: string) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-    apiFetch('/api/notifications/read', {
+    fetch('/api/notifications/read', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notificationId: id }),
@@ -42,10 +41,12 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'predict', label: 'Diabetes Test' },
+    { id: 'python-backend', label: 'Python 3.10' },
     { id: 'ai-assistant', label: 'AI Assistant' },
     { id: 'diet-exercise', label: 'Diet & Fitness' },
     { id: 'analytics', label: 'Analytics' },
     { id: 'history', label: 'History' },
+    { id: 'android', label: 'Android APK' },
   ];
 
   return (
@@ -190,6 +191,15 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
                   <UserIcon className="w-3.5 h-3.5" /> Medical Profile
                 </button>
 
+                <button
+                  onClick={() => {
+                    setActiveTab('android');
+                    setShowUserMenu(false);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl font-medium flex items-center gap-2"
+                >
+                  <Smartphone className="w-3.5 h-3.5" /> Android App Guide
+                </button>
 
                 <button
                   onClick={() => {

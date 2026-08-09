@@ -76,6 +76,23 @@ export interface PredictionResult {
   doctorRecommendations: string[];
   lifestyleAdvice: string[];
   inputData: PredictionInput;
+  backendMetadata?: {
+    engine?: string;
+    shapFramework?: string;
+    executionTimeMs?: number;
+    dataset?: string;
+  };
+}
+
+export interface PythonStatus {
+  status: string;
+  backend: string;
+  pythonVersion: string;
+  executable: string;
+  architecture: string;
+  algorithms: string[];
+  timestamp: string;
+  latencyMs?: number;
 }
 
 export interface MLModelMetrics {

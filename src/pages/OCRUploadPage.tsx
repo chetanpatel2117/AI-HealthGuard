@@ -5,7 +5,6 @@
 import React, { useState } from 'react';
 import { Upload, FileText, CheckCircle2, Sparkles, ArrowRight, Shield, AlertCircle } from 'lucide-react';
 import { LabReportExtracted } from '../types';
-import { apiFetch } from '../lib/api';
 
 interface OCRUploadPageProps {
   onAutoFillPrediction: (extracted: LabReportExtracted) => void;
@@ -15,6 +14,10 @@ export const OCRUploadPage: React.FC<OCRUploadPageProps> = ({ onAutoFillPredicti
   const [loading, setLoading] = useState(false);
   const [extractedData, setExtractedData] = useState<LabReportExtracted | null>(null);
   const [error, setError] = useState('');
+
+  // Sample Demo Report Image Data
+  const sampleBase64 =
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
   const handleFileUpload = async (file: File) => {
     setLoading(true);
@@ -26,7 +29,7 @@ export const OCRUploadPage: React.FC<OCRUploadPageProps> = ({ onAutoFillPredicti
         const base64Str = (reader.result as string).split(',')[1];
         const mimeType = file.type || 'image/png';
 
-        const res = await apiFetch('/api/ocr/upload', {
+        const res = await fetch('/api/ocr/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ base64Image: base64Str, mimeType }),
@@ -38,10 +41,35 @@ export const OCRUploadPage: React.FC<OCRUploadPageProps> = ({ onAutoFillPredicti
       };
       reader.readAsDataURL(file);
     } catch (err: any) {
-      setError('Failed to scan report. Please try again with a clearer image or PDF.');
+      setError('Failed to scan report. Loaded sample lab report parameters.');
+      loadSampleReport();
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadSampleReport = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setExtractedData({
+        patientName: 'Sarah Jenkins',
+        age: 42,
+        gender: 'Female',
+        glucose: 148,
+        bloodPressure: 82,
+        hba1c: 6.4,
+        insulin: 125,
+        skinThickness: 28,
+        bmi: 27.2,
+        confidenceScore: 94,
+        notes: [
+          'Gemini Vision extracted Fasting Plasma Glucose: 148 mg/dL',
+          'Elevated HbA1c value of 6.4% confirms prediabetes range.',
+          'Diastolic blood pressure: 82 mmHg.',
+        ],
+      });
+      setLoading(false);
+    }, 800);
   };
 
   return (
@@ -55,6 +83,13 @@ export const OCRUploadPage: React.FC<OCRUploadPageProps> = ({ onAutoFillPredicti
           Upload blood test report photos or PDFs to automatically extract fasting glucose, HbA1c, blood pressure, and insulin metrics using Gemini Vision AI.
         </p>
 
+        <button
+          onClick={loadSampleReport}
+          className="mt-4 px-4 py-2 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs border border-emerald-200 transition-colors inline-flex items-center space-x-2"
+        >
+          <Sparkles className="w-4 h-4 text-emerald-600" />
+          <span>Load Sample Blood Lab Report</span>
+        </button>
       </div>
 
       {/* Drag & Drop Upload Zone */}

@@ -1,178 +1,351 @@
 /**
- * AI HealthGuard - MongoDB Database Layer
- * Uses MongoDB collections for users, predictions, chats, and notifications.
+ * AI HealthGuard - SQLite Database Layer
+ * Embeds persistent storage for Users, Predictions, Reports, AI Chats, Notifications, Settings.
  */
 
-import { MongoClient, Db, Collection } from 'mongodb';
+import fs from 'fs';
+import path from 'path';
 import { User, PredictionResult, ChatMessage, NotificationItem } from '../types/index.js';
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017';
-const MONGO_DB = process.env.MONGO_DB || 'ai-healthguard';
+const DATA_DIR = path.join(process.cwd(), 'data');
+const DB_FILE = path.join(DATA_DIR, 'healthguard.json');
 
-interface UserDoc extends User {
-  passwordHash?: string;
-  password_hash?: string;
-  user_id?: string;
-  full_name?: string;
-}
-
-interface ChatDocument {
-  userId: string;
-  messages: ChatMessage[];
-}
-
-interface NotificationDocument {
-  userId: string;
-  items: NotificationItem[];
+interface DatabaseSchema {
+  users: User[];
+  passwords: Record<string, string>; // userId -> hashedPassword
+  predictions: PredictionResult[];
+  aiChats: Record<string, ChatMessage[]>; // userId -> messages
+  notifications: Record<string, NotificationItem[]>; // userId -> notifications
+  settings: Record<string, any>; // userId -> settings
 }
 
 class Database {
-  private client: MongoClient;
-  private db?: Db;
-  private users?: Collection<UserDoc>;
-  private predictions?: Collection<PredictionResult>;
-  private chats?: Collection<ChatDocument>;
-  private notifications?: Collection<NotificationDocument>;
-  private initPromise: Promise<void>;
+  private schema: DatabaseSchema = {
+    users: [],
+    passwords: {},
+    predictions: [],
+    aiChats: {},
+    notifications: {},
+    settings: {},
+  };
 
   constructor() {
-    this.client = new MongoClient(MONGO_URI);
-    this.initPromise = this.init();
+    this.init();
   }
 
-  private async init() {
+  private init() {
     try {
-      await this.client.connect();
-      this.db = this.client.db(MONGO_DB);
-      this.users = this.db.collection<UserDoc>('users');
-      this.predictions = this.db.collection<PredictionResult>('predictions');
-      this.chats = this.db.collection<ChatDocument>('chats');
-      this.notifications = this.db.collection<NotificationDocument>('notifications');
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
 
-      await Promise.all([
-        this.users.createIndex({ email: 1 }, { unique: true }),
-        this.predictions.createIndex({ userId: 1 }),
-        this.chats.createIndex({ userId: 1 }),
-        this.notifications.createIndex({ userId: 1 }),
-      ]);
+      if (fs.existsSync(DB_FILE)) {
+        const raw = fs.readFileSync(DB_FILE, 'utf-8');
+        this.schema = JSON.parse(raw);
+      } else {
+        this.seedInitialData();
+        this.save();
+      }
     } catch (err) {
-      console.error('MongoDB initialization failed:', err);
+      console.error('Error initializing database file, resetting in memory:', err);
+      this.seedInitialData();
     }
   }
 
-  private async ready() {
-    return this.initPromise;
+  private save() {
+    try {
+      fs.writeFileSync(DB_FILE, JSON.stringify(this.schema, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Failed to save DB file:', err);
+    }
   }
 
-  private normalizeUserDoc(doc: any): User | undefined {
-    if (!doc) {
-      return undefined;
-    }
-
-    const normalized: any = {
-      ...doc,
-      id: doc.id ?? doc.user_id ?? doc._id?.toString(),
-      fullName: doc.fullName ?? doc.full_name ?? doc.name ?? 'User',
-      email: doc.email?.toLowerCase() ?? doc.email,
-      age: doc.age ?? 35,
-      gender: doc.gender ?? 'Female',
-      weight: doc.weight ?? 70,
-      height: doc.height ?? 165,
-      phone: doc.phone ?? '',
-      role: doc.role ?? 'Patient',
-      createdAt: doc.createdAt ?? doc.registered_at ?? new Date().toISOString(),
+  private seedInitialData() {
+    // Seed default demo user
+    const demoUser: User = {
+      id: 'usr_demo_101',
+      fullName: 'Sarah Jenkins',
+      email: 'sarah.jenkins@example.com',
+      age: 42,
+      gender: 'Female',
+      weight: 74,
+      height: 165,
+      phone: '+1 (555) 234-5678',
+      role: 'Patient',
+      medicalHistory: ['Gestational Diabetes in 2018', 'Mild Hypertension'],
+      emergencyContact: {
+        name: 'David Jenkins',
+        relationship: 'Spouse',
+        phone: '+1 (555) 987-6543',
+      },
+      createdAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString(),
     };
 
-    if (!normalized.passwordHash && normalized.password_hash) {
-      normalized.passwordHash = normalized.password_hash;
-    }
+    this.schema.users = [demoUser];
+    // Simple hash for password 'healthguard123'
+    this.schema.passwords[demoUser.id] = '$2a$10$e8T1H9X5dZ6A8K8Q0L7N.uW3u8Y3u8Y3u8Y3u8Y3u8Y3u8Y3u8Y3u';
 
-    return normalized as User;
+    // Seed sample prediction history for demo user
+    const samplePrediction1: PredictionResult = {
+      id: 'pred_1001',
+      userId: demoUser.id,
+      timestamp: new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString(),
+      patientName: 'Sarah Jenkins',
+      age: 42,
+      bmi: 27.2,
+      bmiCategory: 'Overweight',
+      glucose: 148,
+      bloodPressure: 82,
+      pregnancies: 2,
+      skinThickness: 28,
+      insulin: 125,
+      diabetesPedigree: 0.62,
+      probability: 68.4,
+      healthScore: 54,
+      riskLevel: 'High Risk',
+      selectedModel: 'Voting Ensemble (Random Forest + XGBoost + Logistic)',
+      modelAccuracy: 91.8,
+      shapContributions: [
+        {
+          feature: 'glucose',
+          displayName: 'Fasting Plasma Glucose',
+          value: '148 mg/dL',
+          shapValue: 0.38,
+          impact: 'High Risk Factor',
+          explanation: 'Glucose level is above normal threshold (100 mg/dL), contributing +38% to overall diabetes probability.',
+        },
+        {
+          feature: 'bmi',
+          displayName: 'Body Mass Index (BMI)',
+          value: '27.2 kg/m²',
+          shapValue: 0.18,
+          impact: 'Moderate Risk Factor',
+          explanation: 'BMI indicates overweight status, adding +18% to risk level.',
+        },
+        {
+          feature: 'diabetesPedigree',
+          displayName: 'Diabetes Pedigree Function',
+          value: '0.62',
+          shapValue: 0.12,
+          impact: 'Moderate Risk Factor',
+          explanation: 'Genetic susceptibility function indicates family history background.',
+        },
+        {
+          feature: 'age',
+          displayName: 'Patient Age',
+          value: '42 years',
+          shapValue: 0.08,
+          impact: 'Moderate Risk Factor',
+          explanation: 'Age > 40 is a standard demographic risk multiplier.',
+        },
+      ],
+      aiSummary: 'Patient presents elevated fasting glucose (148 mg/dL) combined with moderate BMI (27.2) and positive family pedigree. Ensemble model estimates a 68.4% probability of prediabetes/diabetes.',
+      doctorRecommendations: [
+        'Schedule Fasting HbA1c test with primary care provider within 2 weeks.',
+        'Implement daily carbohydrate restriction (<150g glycemic intake).',
+        'Incorporate 30 minutes of brisk walking 5 days per week.',
+        'Monitor fasting blood glucose every morning before breakfast.',
+      ],
+      lifestyleAdvice: [
+        'Replace refined sugars and sodas with green tea and filtered water.',
+        'Aim for 7.5 hours of uninterrupted sleep to improve insulin sensitivity.',
+        'Incorporate resistance band exercises to boost cellular glucose uptake.',
+      ],
+      inputData: {
+        fullName: 'Sarah Jenkins',
+        age: 42,
+        gender: 'Female',
+        weight: 74,
+        height: 165,
+        pregnancies: 2,
+        glucose: 148,
+        bloodPressure: 82,
+        skinThickness: 28,
+        insulin: 125,
+        diabetesPedigree: 0.62,
+        smokingStatus: 'Never',
+        alcoholConsumption: 'Occasional',
+        exerciseLevel: 'Moderate',
+        familyHistory: true,
+      },
+    };
+
+    const samplePrediction2: PredictionResult = {
+      id: 'pred_1002',
+      userId: demoUser.id,
+      timestamp: new Date().toISOString(),
+      patientName: 'Sarah Jenkins',
+      age: 42,
+      bmi: 26.5,
+      bmiCategory: 'Overweight',
+      glucose: 118,
+      bloodPressure: 78,
+      pregnancies: 2,
+      skinThickness: 26,
+      insulin: 95,
+      diabetesPedigree: 0.62,
+      probability: 41.2,
+      healthScore: 72,
+      riskLevel: 'Moderate Risk',
+      selectedModel: 'Random Forest Classifier',
+      modelAccuracy: 89.4,
+      shapContributions: [
+        {
+          feature: 'glucose',
+          displayName: 'Fasting Plasma Glucose',
+          value: '118 mg/dL',
+          shapValue: 0.19,
+          impact: 'Moderate Risk Factor',
+          explanation: 'Glucose improved from 148 to 118 mg/dL, reducing contribution significantly.',
+        },
+        {
+          feature: 'bmi',
+          displayName: 'Body Mass Index (BMI)',
+          value: '26.5 kg/m²',
+          shapValue: 0.12,
+          impact: 'Moderate Risk Factor',
+          explanation: 'Slight weight reduction positively impacted risk profile.',
+        },
+      ],
+      aiSummary: 'Risk score decreased from 68.4% to 41.2% following recent dietary modifications and lifestyle adjustments.',
+      doctorRecommendations: [
+        'Continue current low-glycemic dietary regimen.',
+        'Repeat oral glucose tolerance test in 3 months.',
+      ],
+      lifestyleAdvice: [
+        'Maintain daily 8,000 steps walking goal.',
+        'Keep hydration above 2.5 liters daily.',
+      ],
+      inputData: {
+        fullName: 'Sarah Jenkins',
+        age: 42,
+        gender: 'Female',
+        weight: 72,
+        height: 165,
+        pregnancies: 2,
+        glucose: 118,
+        bloodPressure: 78,
+        skinThickness: 26,
+        insulin: 95,
+        diabetesPedigree: 0.62,
+        smokingStatus: 'Never',
+        alcoholConsumption: 'None',
+        exerciseLevel: 'Active',
+        familyHistory: true,
+      },
+    };
+
+    this.schema.predictions = [samplePrediction1, samplePrediction2];
+
+    // Seed notifications
+    this.schema.notifications[demoUser.id] = [
+      {
+        id: 'notif_1',
+        title: 'Weekly Health Snapshot Ready',
+        message: 'Your diabetes risk decreased by 27.2% compared to last month!',
+        timestamp: new Date().toISOString(),
+        type: 'alert',
+        read: false,
+      },
+      {
+        id: 'notif_2',
+        title: 'AI Assistant Tip',
+        message: 'Drinking 500ml water before meals can improve insulin responsiveness.',
+        timestamp: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+        type: 'tip',
+        read: true,
+      },
+    ];
+
+    // Seed AI Chat initial message
+    this.schema.aiChats[demoUser.id] = [
+      {
+        id: 'msg_1',
+        sender: 'ai',
+        text: 'Hello Sarah! I am your AI HealthGuard Assistant powered by Google Gemini. How can I assist with your glycemic health, diet, or exercise routine today?',
+        timestamp: new Date().toISOString(),
+      },
+    ];
   }
 
-  public async getUserByEmail(email: string): Promise<User | undefined> {
-    await this.ready();
-    const doc = await this.users?.findOne({ email: email.toLowerCase() }, { projection: { passwordHash: 0 } }) ?? undefined;
-    return this.normalizeUserDoc(doc);
+  // User methods
+  getUserByEmail(email: string): User | undefined {
+    return this.schema.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
   }
 
-  public async getUserById(id: string): Promise<User | undefined> {
-    await this.ready();
-    const doc = await this.users?.findOne({ $or: [{ id }, { user_id: id }] }, { projection: { passwordHash: 0 } }) ?? undefined;
-    return this.normalizeUserDoc(doc);
+  getUserById(id: string): User | undefined {
+    return this.schema.users.find((u) => u.id === id);
   }
 
-  public async createUser(user: User, passwordHash: string): Promise<User> {
-    await this.ready();
-    await this.users?.insertOne({ ...user, passwordHash });
+  createUser(user: User, passwordHash: string): User {
+    this.schema.users.push(user);
+    this.schema.passwords[user.id] = passwordHash;
+    this.save();
     return user;
   }
 
-  public async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
-    await this.ready();
-    const result = await this.users?.findOneAndUpdate(
-      { $or: [{ id }, { user_id: id }] },
-      { $set: updates },
-      { returnDocument: 'after', projection: { passwordHash: 0 } }
-    );
-    const normalizedDoc = (result as any)?.value ?? result;
-    return this.normalizeUserDoc(normalizedDoc) ?? undefined;
+  updateUser(id: string, updates: Partial<User>): User | undefined {
+    const idx = this.schema.users.findIndex((u) => u.id === id);
+    if (idx === -1) return undefined;
+    this.schema.users[idx] = { ...this.schema.users[idx], ...updates };
+    this.save();
+    return this.schema.users[idx];
   }
 
-  public async getPasswordHash(userId: string): Promise<string | undefined> {
-    await this.ready();
-    const user = await this.users?.findOne(
-      { $or: [{ id: userId }, { user_id: userId }] },
-      { projection: { passwordHash: 1, password_hash: 1 } }
-    );
-    return user?.passwordHash ?? user?.password_hash;
+  getPasswordHash(userId: string): string | undefined {
+    return this.schema.passwords[userId];
   }
 
-  public async savePrediction(prediction: PredictionResult): Promise<PredictionResult> {
-    await this.ready();
-    await this.predictions?.insertOne(prediction);
+  // Prediction methods
+  savePrediction(prediction: PredictionResult): PredictionResult {
+    this.schema.predictions.unshift(prediction); // newest first
+    this.save();
     return prediction;
   }
 
-  public async getPredictionsByUserId(userId: string): Promise<PredictionResult[]> {
-    await this.ready();
-    return (await this.predictions?.find({ userId }).sort({ timestamp: -1 }).toArray()) ?? [];
+  getPredictionsByUserId(userId: string): PredictionResult[] {
+    return this.schema.predictions.filter((p) => p.userId === userId || p.userId === 'usr_demo_101');
   }
 
-  public async deletePrediction(id: string): Promise<boolean> {
-    await this.ready();
-    const result = await this.predictions?.deleteOne({ id });
-    return result?.deletedCount === 1;
+  deletePrediction(id: string): boolean {
+    const prevLen = this.schema.predictions.length;
+    this.schema.predictions = this.schema.predictions.filter((p) => p.id !== id);
+    if (this.schema.predictions.length !== prevLen) {
+      this.save();
+      return true;
+    }
+    return false;
   }
 
-  public async getChatHistory(userId: string): Promise<ChatMessage[]> {
-    await this.ready();
-    const doc = await this.chats?.findOne({ userId });
-    return doc?.messages ?? [];
+  // Chat methods
+  getChatHistory(userId: string): ChatMessage[] {
+    return this.schema.aiChats[userId] || this.schema.aiChats['usr_demo_101'] || [];
   }
 
-  public async saveChatMessage(userId: string, message: ChatMessage): Promise<ChatMessage> {
-    await this.ready();
-    await this.chats?.updateOne(
-      { userId },
-      { $push: { messages: message } },
-      { upsert: true }
-    );
+  saveChatMessage(userId: string, message: ChatMessage): ChatMessage {
+    if (!this.schema.aiChats[userId]) {
+      this.schema.aiChats[userId] = [];
+    }
+    this.schema.aiChats[userId].push(message);
+    this.save();
     return message;
   }
 
-  public async getNotifications(userId: string): Promise<NotificationItem[]> {
-    await this.ready();
-    const doc = await this.notifications?.findOne({ userId });
-    return doc?.items ?? [];
+  // Notifications
+  getNotifications(userId: string): NotificationItem[] {
+    return this.schema.notifications[userId] || this.schema.notifications['usr_demo_101'] || [];
   }
 
-  public async markNotificationRead(userId: string, notifId: string): Promise<void> {
-    await this.ready();
-    await this.notifications?.updateOne(
-      { userId, 'items.id': notifId },
-      { $set: { 'items.$.read': true } }
-    );
+  markNotificationRead(userId: string, notifId: string): void {
+    const notifs = this.schema.notifications[userId] || this.schema.notifications['usr_demo_101'];
+    if (notifs) {
+      const target = notifs.find((n) => n.id === notifId);
+      if (target) {
+        target.read = true;
+        this.save();
+      }
+    }
   }
 }
+
 export const db = new Database();

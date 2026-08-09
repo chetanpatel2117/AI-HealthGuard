@@ -1,0 +1,322 @@
+{
+  "users": [
+    {
+      "id": "usr_demo_101",
+      "fullName": "Sarah Jenkins",
+      "email": "sarah.jenkins@example.com",
+      "age": 42,
+      "gender": "Female",
+      "weight": 74,
+      "height": 165,
+      "phone": "+1 (555) 234-5678",
+      "role": "Patient",
+      "medicalHistory": [
+        "Gestational Diabetes in 2018",
+        "Mild Hypertension"
+      ],
+      "emergencyContact": {
+        "name": "David Jenkins",
+        "relationship": "Spouse",
+        "phone": "+1 (555) 987-6543"
+      },
+      "createdAt": "2026-07-10T12:41:01.615Z"
+    }
+  ],
+  "passwords": {
+    "usr_demo_101": "$2a$10$e8T1H9X5dZ6A8K8Q0L7N.uW3u8Y3u8Y3u8Y3u8Y3u8Y3u8Y3u8Y3u"
+  },
+  "predictions": [
+    {
+      "id": "pred_py_1786279482181",
+      "userId": "usr_demo_101",
+      "timestamp": "2026-08-09T12:44:42.181549Z",
+      "patientName": "John Doe",
+      "age": 52,
+      "bmi": 29.1,
+      "bmiCategory": "Overweight",
+      "glucose": 162,
+      "bloodPressure": 88,
+      "pregnancies": 0,
+      "skinThickness": 33,
+      "insulin": 160,
+      "diabetesPedigree": 0.72,
+      "probability": 98,
+      "healthScore": 17,
+      "riskLevel": "Severe Risk",
+      "selectedModel": "Voting Ensemble (Random Forest + XGBoost + Logistic)",
+      "modelAccuracy": 91.1,
+      "shapContributions": [
+        {
+          "feature": "glucose",
+          "displayName": "Fasting Plasma Glucose",
+          "value": "162.0 mg/dL",
+          "shapValue": 0.231,
+          "impact": "High Risk Factor",
+          "explanation": "Fasting glucose of 162.0 mg/dL is above normal threshold, adding +23% to diabetes probability."
+        },
+        {
+          "feature": "age",
+          "displayName": "Patient Age",
+          "value": "52 yrs",
+          "shapValue": 0.112,
+          "impact": "Moderate Risk Factor",
+          "explanation": "Age (52 yrs) contributes +11% based on demographic beta-cell decay models."
+        },
+        {
+          "feature": "diabetesPedigree",
+          "displayName": "Diabetes Pedigree Function (Genetic)",
+          "value": "0.72",
+          "shapValue": 0.068,
+          "impact": "Moderate Risk Factor",
+          "explanation": "Genetic lineage score of 0.72 indicates elevated familial hereditary risk."
+        },
+        {
+          "feature": "bmi",
+          "displayName": "Body Mass Index (BMI)",
+          "value": "29.1 kg/m²",
+          "shapValue": -0.055,
+          "impact": "Protective Factor",
+          "explanation": "Healthy BMI (29.1 kg/m²) provides significant protective metabolic buffer."
+        },
+        {
+          "feature": "bloodPressure",
+          "displayName": "Diastolic Blood Pressure",
+          "value": "88 mmHg",
+          "shapValue": 0.049,
+          "impact": "Moderate Risk Factor",
+          "explanation": "Blood pressure reading of 88 mmHg increases vascular stress."
+        },
+        {
+          "feature": "insulin",
+          "displayName": "2-Hour Serum Insulin",
+          "value": "160 µU/mL",
+          "shapValue": 0.042,
+          "impact": "Moderate Risk Factor",
+          "explanation": "Fasting/postprandial insulin level (160 µU/mL) reflects pancreatic endocrine workload."
+        },
+        {
+          "feature": "skinThickness",
+          "displayName": "Triceps Skinfold Thickness",
+          "value": "33 mm",
+          "shapValue": 0.023,
+          "impact": "Protective Factor",
+          "explanation": "Subcutaneous fat layer measure (33 mm) mirrors body composition metrics."
+        }
+      ],
+      "aiSummary": "Python ML Ensemble evaluation calculates a 98.0% risk probability (Severe Risk). The primary feature influencing this assessment is Fasting Plasma Glucose (162.0 mg/dL). Fasting glucose of 162.0 mg/dL is above normal threshold, adding +23% to diabetes probability.",
+      "doctorRecommendations": [
+        "Consult an Endocrinologist for formal Fasting HbA1c & 2-Hour Oral Glucose Tolerance Testing.",
+        "Screen for hypertension, microalbuminuria, and baseline kidney function markers.",
+        "Evaluate comprehensive lipid panel (Triglycerides, HDL, LDL, VLDL).",
+        "Discuss early therapeutic and dietary glycemic intervention protocols."
+      ],
+      "lifestyleAdvice": [
+        "Limit refined sugar, white bread, sweetened beverages, and high-glycemic carbohydrates.",
+        "Aim for a 5-7% gradual body weight reduction, which can reduce type-2 diabetes incidence by up to 58%.",
+        "Continue regular aerobic workouts; incorporate resistance training twice weekly to maximize skeletal muscle GLUT4 glucose uptake.",
+        "Prioritize 7-8 hours of uninterrupted sleep each night to normalize morning cortisol and insulin sensitivity."
+      ],
+      "inputData": {
+        "fullName": "John Doe",
+        "age": 52,
+        "gender": "Male",
+        "weight": 88,
+        "height": 174,
+        "pregnancies": 0,
+        "glucose": 162,
+        "bloodPressure": 88,
+        "skinThickness": 33,
+        "insulin": 160,
+        "diabetesPedigree": 0.72,
+        "smokingStatus": "Never",
+        "alcoholConsumption": "None",
+        "exerciseLevel": "Low",
+        "familyHistory": true
+      },
+      "backendMetadata": {
+        "engine": "Python 3.10 MLEngine",
+        "shapFramework": "Python SHAP (Game Theory)",
+        "executionTimeMs": 0.09,
+        "dataset": "Pima Indians Diabetes Database (NIH/NIDDK)"
+      }
+    },
+    {
+      "id": "pred_1001",
+      "userId": "usr_demo_101",
+      "timestamp": "2026-07-26T12:41:01.615Z",
+      "patientName": "Sarah Jenkins",
+      "age": 42,
+      "bmi": 27.2,
+      "bmiCategory": "Overweight",
+      "glucose": 148,
+      "bloodPressure": 82,
+      "pregnancies": 2,
+      "skinThickness": 28,
+      "insulin": 125,
+      "diabetesPedigree": 0.62,
+      "probability": 68.4,
+      "healthScore": 54,
+      "riskLevel": "High Risk",
+      "selectedModel": "Voting Ensemble (Random Forest + XGBoost + Logistic)",
+      "modelAccuracy": 91.8,
+      "shapContributions": [
+        {
+          "feature": "glucose",
+          "displayName": "Fasting Plasma Glucose",
+          "value": "148 mg/dL",
+          "shapValue": 0.38,
+          "impact": "High Risk Factor",
+          "explanation": "Glucose level is above normal threshold (100 mg/dL), contributing +38% to overall diabetes probability."
+        },
+        {
+          "feature": "bmi",
+          "displayName": "Body Mass Index (BMI)",
+          "value": "27.2 kg/m²",
+          "shapValue": 0.18,
+          "impact": "Moderate Risk Factor",
+          "explanation": "BMI indicates overweight status, adding +18% to risk level."
+        },
+        {
+          "feature": "diabetesPedigree",
+          "displayName": "Diabetes Pedigree Function",
+          "value": "0.62",
+          "shapValue": 0.12,
+          "impact": "Moderate Risk Factor",
+          "explanation": "Genetic susceptibility function indicates family history background."
+        },
+        {
+          "feature": "age",
+          "displayName": "Patient Age",
+          "value": "42 years",
+          "shapValue": 0.08,
+          "impact": "Moderate Risk Factor",
+          "explanation": "Age > 40 is a standard demographic risk multiplier."
+        }
+      ],
+      "aiSummary": "Patient presents elevated fasting glucose (148 mg/dL) combined with moderate BMI (27.2) and positive family pedigree. Ensemble model estimates a 68.4% probability of prediabetes/diabetes.",
+      "doctorRecommendations": [
+        "Schedule Fasting HbA1c test with primary care provider within 2 weeks.",
+        "Implement daily carbohydrate restriction (<150g glycemic intake).",
+        "Incorporate 30 minutes of brisk walking 5 days per week.",
+        "Monitor fasting blood glucose every morning before breakfast."
+      ],
+      "lifestyleAdvice": [
+        "Replace refined sugars and sodas with green tea and filtered water.",
+        "Aim for 7.5 hours of uninterrupted sleep to improve insulin sensitivity.",
+        "Incorporate resistance band exercises to boost cellular glucose uptake."
+      ],
+      "inputData": {
+        "fullName": "Sarah Jenkins",
+        "age": 42,
+        "gender": "Female",
+        "weight": 74,
+        "height": 165,
+        "pregnancies": 2,
+        "glucose": 148,
+        "bloodPressure": 82,
+        "skinThickness": 28,
+        "insulin": 125,
+        "diabetesPedigree": 0.62,
+        "smokingStatus": "Never",
+        "alcoholConsumption": "Occasional",
+        "exerciseLevel": "Moderate",
+        "familyHistory": true
+      }
+    },
+    {
+      "id": "pred_1002",
+      "userId": "usr_demo_101",
+      "timestamp": "2026-08-09T12:41:01.615Z",
+      "patientName": "Sarah Jenkins",
+      "age": 42,
+      "bmi": 26.5,
+      "bmiCategory": "Overweight",
+      "glucose": 118,
+      "bloodPressure": 78,
+      "pregnancies": 2,
+      "skinThickness": 26,
+      "insulin": 95,
+      "diabetesPedigree": 0.62,
+      "probability": 41.2,
+      "healthScore": 72,
+      "riskLevel": "Moderate Risk",
+      "selectedModel": "Random Forest Classifier",
+      "modelAccuracy": 89.4,
+      "shapContributions": [
+        {
+          "feature": "glucose",
+          "displayName": "Fasting Plasma Glucose",
+          "value": "118 mg/dL",
+          "shapValue": 0.19,
+          "impact": "Moderate Risk Factor",
+          "explanation": "Glucose improved from 148 to 118 mg/dL, reducing contribution significantly."
+        },
+        {
+          "feature": "bmi",
+          "displayName": "Body Mass Index (BMI)",
+          "value": "26.5 kg/m²",
+          "shapValue": 0.12,
+          "impact": "Moderate Risk Factor",
+          "explanation": "Slight weight reduction positively impacted risk profile."
+        }
+      ],
+      "aiSummary": "Risk score decreased from 68.4% to 41.2% following recent dietary modifications and lifestyle adjustments.",
+      "doctorRecommendations": [
+        "Continue current low-glycemic dietary regimen.",
+        "Repeat oral glucose tolerance test in 3 months."
+      ],
+      "lifestyleAdvice": [
+        "Maintain daily 8,000 steps walking goal.",
+        "Keep hydration above 2.5 liters daily."
+      ],
+      "inputData": {
+        "fullName": "Sarah Jenkins",
+        "age": 42,
+        "gender": "Female",
+        "weight": 72,
+        "height": 165,
+        "pregnancies": 2,
+        "glucose": 118,
+        "bloodPressure": 78,
+        "skinThickness": 26,
+        "insulin": 95,
+        "diabetesPedigree": 0.62,
+        "smokingStatus": "Never",
+        "alcoholConsumption": "None",
+        "exerciseLevel": "Active",
+        "familyHistory": true
+      }
+    }
+  ],
+  "aiChats": {
+    "usr_demo_101": [
+      {
+        "id": "msg_1",
+        "sender": "ai",
+        "text": "Hello Sarah! I am your AI HealthGuard Assistant powered by Google Gemini. How can I assist with your glycemic health, diet, or exercise routine today?",
+        "timestamp": "2026-08-09T12:41:01.615Z"
+      }
+    ]
+  },
+  "notifications": {
+    "usr_demo_101": [
+      {
+        "id": "notif_1",
+        "title": "Weekly Health Snapshot Ready",
+        "message": "Your diabetes risk decreased by 27.2% compared to last month!",
+        "timestamp": "2026-08-09T12:41:01.615Z",
+        "type": "alert",
+        "read": false
+      },
+      {
+        "id": "notif_2",
+        "title": "AI Assistant Tip",
+        "message": "Drinking 500ml water before meals can improve insulin responsiveness.",
+        "timestamp": "2026-08-08T12:41:01.615Z",
+        "type": "tip",
+        "read": true
+      }
+    ]
+  },
+  "settings": {}
+}

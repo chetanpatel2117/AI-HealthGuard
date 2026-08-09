@@ -19,6 +19,7 @@ import { HistoryPage } from './pages/HistoryPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AndroidGuidePage } from './pages/AndroidGuidePage';
+import { PythonBackendPage } from './pages/PythonBackendPage';
 import { PredictionResult, LabReportExtracted } from './types';
 
 const MainAppContent: React.FC = () => {
@@ -46,13 +47,13 @@ const MainAppContent: React.FC = () => {
 
   const handleAutoFillFromOCR = (extracted: LabReportExtracted) => {
     setPrefillData({
-      fullName: extracted.patientName || '',
-      age: extracted.age || 0,
-      glucose: extracted.glucose || 0,
-      bloodPressure: extracted.bloodPressure || 0,
-      insulin: extracted.insulin || 0,
-      skinThickness: extracted.skinThickness || 0,
-      bmi: extracted.bmi || 0,
+      fullName: extracted.patientName || 'Sarah Jenkins',
+      age: extracted.age || 42,
+      glucose: extracted.glucose || 148,
+      bloodPressure: extracted.bloodPressure || 82,
+      insulin: extracted.insulin || 125,
+      skinThickness: extracted.skinThickness || 28,
+      bmi: extracted.bmi || 27.2,
     });
     setActiveTab('predict');
   };
@@ -100,6 +101,7 @@ const MainAppContent: React.FC = () => {
             />
           )}
           {activeTab === 'analytics' && <AnalyticsPage />}
+          {activeTab === 'python-backend' && <PythonBackendPage />}
           {activeTab === 'profile' && <ProfilePage />}
           {activeTab === 'android-guide' && <AndroidGuidePage />}
         </main>

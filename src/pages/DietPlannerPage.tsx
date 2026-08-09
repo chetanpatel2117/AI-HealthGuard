@@ -5,7 +5,6 @@
 import React, { useState, useEffect } from 'react';
 import { Utensils, Flame, Droplet, Dumbbell, ShoppingCart, Calendar, Check, Plus, RefreshCw, Sparkles } from 'lucide-react';
 import { DietPlan, ExerciseItem } from '../types';
-import { apiFetch } from '../lib/api';
 
 export const DietPlannerPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'diet' | 'exercise' | 'shopping'>('diet');
@@ -20,7 +19,7 @@ export const DietPlannerPage: React.FC = () => {
   const fetchDietPlan = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch('/api/gemini/diet', {
+      const res = await fetch('/api/gemini/diet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ riskLevel: 'Moderate Risk', bmi: 26.5 }),

@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { Activity, Bot, FileText, Utensils, Upload, History } from 'lucide-react';
+import { Activity, Bot, Utensils, Upload, History, Terminal } from 'lucide-react';
 
 interface QuickActionsProps {
   onSelectAction: (action: string) => void;
@@ -18,6 +18,14 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ onSelectAction }) =>
       icon: Activity,
       gradient: 'from-emerald-600 to-teal-600',
       badge: 'ML Ensemble',
+    },
+    {
+      id: 'python-backend',
+      title: 'Python 3.10 ML Core',
+      desc: 'Inspect Python ML algorithms, SHAP equations & run live scripts.',
+      icon: Terminal,
+      gradient: 'from-slate-900 to-emerald-900',
+      badge: 'Python 3.10',
     },
     {
       id: 'ai-assistant',
@@ -54,7 +62,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ onSelectAction }) =>
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
       {actions.map((act) => {
         const Icon = act.icon;
         return (

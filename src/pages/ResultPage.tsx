@@ -146,9 +146,16 @@ export const ResultPage: React.FC<ResultPageProps> = ({ result, onBack, onNaviga
 
         {/* Right Summary Insights */}
         <div className="space-y-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
               Patient: {result.patientName} ({result.age} yrs, {result.inputData.gender})
+            </span>
+            <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              {result.backendMetadata?.engine || 'Python 3.10 ML Engine'}
+              {result.backendMetadata?.executionTimeMs && (
+                <span className="text-slate-400 font-mono text-[10px]">({result.backendMetadata.executionTimeMs} ms)</span>
+              )}
             </span>
           </div>
 

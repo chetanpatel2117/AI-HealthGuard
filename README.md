@@ -1,54 +1,18 @@
-# AI HealthGuard
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-A local AI health dashboard with a React/Vite frontend and Express server.
+# Run and deploy your AI Studio app
 
-## Project overview
+This contains everything you need to run your app locally.
 
-- Frontend: React + Vite
-- Server: Express + `tsx` serving API routes and Vite middleware in development
-- Database: MongoDB via `mongodb` driver
+## Run Locally
 
-## Prerequisites
-
-- Node.js 18+ (or compatible)
-- npm
-- MongoDB instance or Atlas cluster
-
-## Setup
-
-1. Install Node dependencies:
-   ```bash
-   npm install
-   ```
-
-2. Copy environment variables:
-   ```bash
-   copy .env.example .env
-   ```
-
-3. Update `.env` with your values:
-   - `GEMINI_API_KEY`
-   - `MONGO_URI`
-   - `MONGO_DB`
-   - `JWT_SECRET`
-   - `APP_URL` (optional)
-
-## Run locally\r?\n\r?\n- Start the frontend/server only:\r?\n  ```bash\r?\n  npm run dev\r?\n  ```\r?\n\r?\n## Build & start
-
-1. Build the project:
-   ```bash
-   npm run build
-   ```
-
-2. Start the production server:
-   ```bash
-   npm run start
-   ```
-
-## Notes
-
-- The browser tab title is defined in `index.html`.
-- API routes are exposed under `/api/*`.
-- MongoDB configuration is loaded from `.env`.
+**Prerequisites:**  Node.js
 
 
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

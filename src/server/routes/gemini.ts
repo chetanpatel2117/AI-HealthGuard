@@ -12,7 +12,7 @@ const router = Router();
 // AI CHAT
 router.post('/gemini/chat', async (req: Request, res: Response) => {
   try {
-    const { message, userId = 'anonymous' } = req.body;
+    const { message, userId = 'usr_demo_101' } = req.body;
     if (!message) {
       return res.status(400).json({ error: 'Message content is required' });
     }
@@ -24,7 +24,7 @@ router.post('/gemini/chat', async (req: Request, res: Response) => {
       text: message,
       timestamp: new Date().toISOString(),
     };
-    await db.saveChatMessage(userId, userMsgObj);
+    db.saveChatMessage(userId, userMsgObj);
 
     // Call Gemini API
     const replyText = await GeminiService.chat(message);
@@ -35,7 +35,7 @@ router.post('/gemini/chat', async (req: Request, res: Response) => {
       text: replyText,
       timestamp: new Date().toISOString(),
     };
-    await db.saveChatMessage(userId, aiMsgObj);
+    db.saveChatMessage(userId, aiMsgObj);
 
     return res.json({ reply: replyText, message: aiMsgObj });
   } catch (error) {
@@ -45,9 +45,9 @@ router.post('/gemini/chat', async (req: Request, res: Response) => {
 });
 
 // GET CHAT HISTORY
-router.get('/gemini/chat/history', async (req: Request, res: Response) => {
-  const userId = (req.query.userId as string) || 'anonymous';
-  const history = await db.getChatHistory(userId);
+router.get('/gemini/chat/history', (req: Request, res: Response) => {
+  const userId = (req.query.userId as string) || 'usr_demo_101';
+  const history = db.getChatHistory(userId);
   return res.json(history);
 });
 
@@ -83,17 +83,17 @@ router.post('/ocr/upload', async (req: Request, res: Response) => {
 });
 
 // GET NOTIFICATIONS
-router.get('/notifications', async (req: Request, res: Response) => {
-  const userId = (req.query.userId as string) || 'anonymous';
-  const notifs = await db.getNotifications(userId);
+router.get('/notifications', (req: Request, res: Response) => {
+  const userId = (req.query.userId as string) || 'usr_demo_101';
+  const notifs = db.getNotifications(userId);
   return res.json(notifs);
 });
 
 // MARK NOTIFICATION READ
-router.post('/notifications/read', async (req: Request, res: Response) => {
-  const { userId = 'anonymous', notificationId } = req.body;
+router.post('/notifications/read', (req: Request, res: Response) => {
+  const { userId = 'usr_demo_101', notificationId } = req.body;
   if (notificationId) {
-    await db.markNotificationRead(userId, notificationId);
+    db.markNotificationRead(userId, notificationId);
   }
   return res.json({ success: true });
 });

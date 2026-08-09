@@ -10,13 +10,13 @@ export const ProfilePage: React.FC = () => {
   const { user, login } = useAuth();
   const [saved, setSaved] = useState(false);
 
-  const [fullName, setFullName] = useState(user?.fullName || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [age, setAge] = useState(user?.age || 0);
+  const [fullName, setFullName] = useState(user?.fullName || 'Sarah Jenkins');
+  const [email, setEmail] = useState(user?.email || 'sarah.jenkins@example.com');
+  const [phone, setPhone] = useState(user?.phone || '+1 (555) 234-5678');
+  const [age, setAge] = useState(user?.age || 42);
   const [gender, setGender] = useState(user?.gender || 'Female');
-  const [weight, setWeight] = useState(user?.weight || 0);
-  const [height, setHeight] = useState(user?.height || 0);
+  const [weight, setWeight] = useState(user?.weight || 74);
+  const [height, setHeight] = useState(user?.height || 165);
   const [bloodGroup, setBloodGroup] = useState('O+ Positive');
   const [physician, setPhysician] = useState('Dr. Robert Vance, MD (Endocrinology)');
 
@@ -53,7 +53,7 @@ export const ProfilePage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">{fullName}</h1>
-            <p className="text-xs text-slate-500">{email || 'Complete your profile details'}</p>
+            <p className="text-xs text-slate-500">{email} • Patient ID:usr_demo_101</p>
           </div>
         </div>
 
