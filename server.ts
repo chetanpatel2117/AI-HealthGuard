@@ -11,7 +11,7 @@ async function startServer() {
   const app = express();
   const HOST = process.env.HOST || '0.0.0.0';
   const preferredPort = Number(process.env.PORT) || 3000;
-  const PORT = await getAvailablePort(preferredPort);
+  const PORT = await getAvailablePort(preferredPort, HOST);
 
   app.use(express.json({ limit: '20mb' }));
   app.use(express.urlencoded({ extended: true, limit: '20mb' }));
@@ -48,12 +48,12 @@ async function startServer() {
   });
 }
 
-function getAvailablePort(port: number): Promise<number> {
+function getAvailablePort(port: number, host: string): Promise<number> {
   return new Promise((resolve, reject) => {
     const server = createHttpServer();
     server.once('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
-        resolve(getAvailablePort(port + 1));
+        resolve(getAvailablePort(port + 1, host));
       } else {
         reject(err);
       }
@@ -66,7 +66,7 @@ function getAvailablePort(port: number): Promise<number> {
         server.close(() => resolve(port));
       }
     });
-    server.listen(port, '127.0.0.1');
+    server.listen(port, host);
   });
 }
 
