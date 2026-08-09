@@ -64,36 +64,6 @@ A local AI health dashboard with a React/Vite frontend, Express server, and opti
    npm run start
    ```
 
-## AWS deployment
-
-This project ships with a container-based AWS deployment layout:
-
-- `Dockerfile` builds the Vite + Express app for production.
-- `docker-compose.yml` provides a local container path equivalent to an AWS container runtime.
-- `aws/ecs-task-definition.json` and `aws/ecs-service.yaml` are starter files for Amazon ECS/Fargate.
-
-Suggested AWS flow:
-
-1. Create an ECR repository and push the built container image.
-2. Create a VPC, subnets, ECS cluster, and task execution role.
-3. Configure secrets/environment variables in AWS Systems Manager or ECS environment settings:
-   - `GEMINI_API_KEY`
-   - `JWT_SECRET`
-   - `MONGO_URI`
-   - `MONGO_DB`
-   - `APP_URL`
-4. Deploy the ECS stack using the provided CloudFormation file or `aws ecs` CLI commands.
-
-Example container build/publish commands:
-
-```bash
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
-
-docker build -t ai-healthguard .
-docker tag ai-healthguard:latest <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/ai-healthguard:latest
-docker push <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/ai-healthguard:latest
-```
-
 ## Notes
 
 - The browser tab title is defined in `index.html`.
