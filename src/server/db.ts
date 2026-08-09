@@ -11,6 +11,9 @@ const MONGO_DB = process.env.MONGO_DB || 'ai-healthguard';
 
 interface UserDoc extends User {
   passwordHash?: string;
+  password_hash?: string;
+  user_id?: string;
+  full_name?: string;
 }
 
 interface ChatDocument {
@@ -61,14 +64,42 @@ class Database {
     return this.initPromise;
   }
 
+  private normalizeUserDoc(doc: any): User | undefined {
+    if (!doc) {
+      return undefined;
+    }
+
+    const normalized: any = {
+      ...doc,
+      id: doc.id ?? doc.user_id ?? doc._id?.toString(),
+      fullName: doc.fullName ?? doc.full_name ?? doc.name ?? 'User',
+      email: doc.email?.toLowerCase() ?? doc.email,
+      age: doc.age ?? 35,
+      gender: doc.gender ?? 'Female',
+      weight: doc.weight ?? 70,
+      height: doc.height ?? 165,
+      phone: doc.phone ?? '',
+      role: doc.role ?? 'Patient',
+      createdAt: doc.createdAt ?? doc.registered_at ?? new Date().toISOString(),
+    };
+
+    if (!normalized.passwordHash && normalized.password_hash) {
+      normalized.passwordHash = normalized.password_hash;
+    }
+
+    return normalized as User;
+  }
+
   public async getUserByEmail(email: string): Promise<User | undefined> {
     await this.ready();
-    return this.users?.findOne({ email: email.toLowerCase() }, { projection: { passwordHash: 0 } }) ?? undefined;
+    const doc = await this.users?.findOne({ email: email.toLowerCase() }, { projection: { passwordHash: 0 } }) ?? undefined;
+    return this.normalizeUserDoc(doc);
   }
 
   public async getUserById(id: string): Promise<User | undefined> {
     await this.ready();
-    return this.users?.findOne({ id }, { projection: { passwordHash: 0 } }) ?? undefined;
+    const doc = await this.users?.findOne({ $or: [{ id }, { user_id: id }] }, { projection: { passwordHash: 0 } }) ?? undefined;
+    return this.normalizeUserDoc(doc);
   }
 
   public async createUser(user: User, passwordHash: string): Promise<User> {
@@ -79,14 +110,22 @@ class Database {
 
   public async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
     await this.ready();
-    const result = await this.users?.findOneAndUpdate({ id }, { $set: updates }, { returnDocument: 'after', projection: { passwordHash: 0 } });
-    return result?.value ?? undefined;
+    const result = await this.users?.findOneAndUpdate(
+      { $or: [{ id }, { user_id: id }] },
+      { $set: updates },
+      { returnDocument: 'after', projection: { passwordHash: 0 } }
+    );
+    const normalizedDoc = (result as any)?.value ?? result;
+    return this.normalizeUserDoc(normalizedDoc) ?? undefined;
   }
 
   public async getPasswordHash(userId: string): Promise<string | undefined> {
     await this.ready();
-    const user = await this.users?.findOne({ id: userId }, { projection: { passwordHash: 1 } });
-    return user?.passwordHash;
+    const user = await this.users?.findOne(
+      { $or: [{ id: userId }, { user_id: userId }] },
+      { projection: { passwordHash: 1, password_hash: 1 } }
+    );
+    return user?.passwordHash ?? user?.password_hash;
   }
 
   public async savePrediction(prediction: PredictionResult): Promise<PredictionResult> {
