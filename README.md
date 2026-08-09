@@ -1,12 +1,11 @@
 # AI HealthGuard
 
-A local AI health dashboard with a React/Vite frontend, Express server, and optional Python backend.
+A local AI health dashboard with a React/Vite frontend and Express server.
 
 ## Project overview
 
 - Frontend: React + Vite
 - Server: Express + `tsx` serving API routes and Vite middleware in development
-- Backend: Python FastAPI in `backend/app.py` (optional separate service)
 - Database: MongoDB via `mongodb` driver
 
 ## Prerequisites
@@ -14,7 +13,6 @@ A local AI health dashboard with a React/Vite frontend, Express server, and opti
 - Node.js 18+ (or compatible)
 - npm
 - MongoDB instance or Atlas cluster
-- Python 3.11+ and a backend virtual environment if you want to run the FastAPI backend
 
 ## Setup
 
@@ -35,24 +33,7 @@ A local AI health dashboard with a React/Vite frontend, Express server, and opti
    - `JWT_SECRET`
    - `APP_URL` (optional)
 
-## Run locally
-
-- Start the frontend/server only:
-  ```bash
-  npm run dev
-  ```
-
-- Start the Python backend only:
-  ```bash
-  npm run dev:backend
-  ```
-
-- Start both frontend/server and Python backend together:
-  ```bash
-  npm run dev:all
-  ```
-
-## Build & start
+## Run locally\r?\n\r?\n- Start the frontend/server only:\r?\n  ```bash\r?\n  npm run dev\r?\n  ```\r?\n\r?\n## Build & start
 
 1. Build the project:
    ```bash
@@ -69,4 +50,5 @@ A local AI health dashboard with a React/Vite frontend, Express server, and opti
 - The browser tab title is defined in `index.html`.
 - API routes are exposed under `/api/*`.
 - MongoDB configuration is loaded from `.env`.
-- If `npm run dev:all` fails, ensure `backend/.venv` exists and Python dependencies are installed.
+
+
