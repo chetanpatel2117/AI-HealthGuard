@@ -18,30 +18,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>({
-    id: 'usr_demo_101',
-    fullName: 'Sarah Jenkins',
-    email: 'sarah.jenkins@example.com',
-    age: 42,
-    gender: 'Female',
-    weight: 74,
-    height: 165,
-    phone: '+1 (555) 234-5678',
-    role: 'Patient',
-    medicalHistory: ['Gestational Diabetes in 2018', 'Mild Hypertension'],
-    emergencyContact: {
-      name: 'David Jenkins',
-      relationship: 'Spouse',
-      phone: '+1 (555) 987-6543',
-    },
-    createdAt: new Date().toISOString(),
-  });
+  const [user, setUser] = useState<User | null>(null);
 
-  const [token, setToken] = useState<string | null>(localStorage.getItem('healthguard_token') || 'demo_jwt_token');
-  const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('healthguard_token'));
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch initial user profile from server
+    if (!token) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+
     fetch('/api/auth/me', {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
@@ -49,9 +37,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .then((data) => {
         if (data.user) {
           setUser(data.user);
+        } else {
+          setUser(null);
+          localStorage.removeItem('healthguard_token');
         }
       })
-      .catch((err) => console.log('Auth check error, using demo fallback:', err));
+      .catch((err) => {
+        console.error('Auth check error:', err);
+        setUser(null);
+      })
+      .finally(() => setIsLoading(false));
   }, [token]);
 
   const login = (newToken: string, newUser: User) => {

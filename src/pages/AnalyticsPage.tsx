@@ -6,22 +6,34 @@ import React, { useState, useEffect } from 'react';
 import { Cpu, Award, BarChart2, Layers, ShieldCheck, Terminal, Zap } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { MLBenchmark } from '../types';
+import { PredictionResult } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 export const AnalyticsPage: React.FC = () => {
+  const { user } = useAuth();
   const [benchmarkData, setBenchmarkData] = useState<MLBenchmark | null>(null);
+  const [predictionHistory, setPredictionHistory] = useState<PredictionResult[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    fetch('/api/ml/benchmark')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.models) {
-          setBenchmarkData(data);
-        }
+    const userQuery = user?.id ? `?userId=${encodeURIComponent(user.id)}` : '';
+    Promise.all([
+      fetch('/api/ml/benchmark').then((res) => res.json()),
+      fetch(`/api/history${userQuery}`).then((res) => res.json()),
+    ])
+      .then(([benchmark, history]) => {
+        if (benchmark?.models) setBenchmarkData(benchmark);
+        if (Array.isArray(history)) setPredictionHistory(history);
       })
-      .catch((err) => console.error('Failed to load benchmark:', err))
+      .catch((err) => console.error('Failed to load analytics:', err))
       .finally(() => setLoading(false));
-  }, []);
+  }, [user?.id]);
+
+  const latestPrediction = predictionHistory[0];
+  const averageRisk = predictionHistory.length
+    ? predictionHistory.reduce((total, item) => total + item.probability, 0) / predictionHistory.length
+    : 0;
+  const highRiskCount = predictionHistory.filter((item) => item.probability >= 50).length;
 
   const fallbackBenchmarks = [
     { name: 'Voting Ensemble', accuracy: 92.4, precision: 91.2, recall: 90.8, f1Score: 91.0, rocAuc: 0.954, color: '#10b981' },
@@ -69,6 +81,22 @@ export const AnalyticsPage: React.FC = () => {
         <div className="px-4 py-2 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-extrabold flex items-center gap-1.5 shrink-0">
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
           <span>Top Engine: Voting Ensemble (92.4%)</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl p-5 border border-emerald-100 shadow-xs">
+          <p className="text-xs text-slate-500">Your saved assessments</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">{predictionHistory.length}</p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 border border-emerald-100 shadow-xs">
+          <p className="text-xs text-slate-500">Average diabetes risk</p>
+          <p className="text-2xl font-bold text-emerald-700 mt-1">{averageRisk.toFixed(1)}%</p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 border border-emerald-100 shadow-xs">
+          <p className="text-xs text-slate-500">High-risk assessments</p>
+          <p className="text-2xl font-bold text-rose-600 mt-1">{highRiskCount}</p>
+          {latestPrediction && <p className="text-[11px] text-slate-400 mt-1">Latest: {latestPrediction.riskLevel}</p>}
         </div>
       </div>
 
@@ -175,8 +203,8 @@ export const AnalyticsPage: React.FC = () => {
                   <tr key={m.name} className="hover:bg-slate-50">
                     <td className="py-2.5 font-bold text-slate-900">{m.name}</td>
                     <td className="py-2.5 font-extrabold text-emerald-700">{m.accuracy}%</td>
-                    <td className="py-2.5">{m.f1Score || m.f1}%</td>
-                    <td className="py-2.5 text-slate-500">{m.rocAuc || m.auc}</td>
+                    <td className="py-2.5">{m.f1Score}%</td>
+                    <td className="py-2.5 text-slate-500">{m.rocAuc}</td>
                   </tr>
                 ))}
               </tbody>

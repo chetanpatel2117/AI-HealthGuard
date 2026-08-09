@@ -24,7 +24,9 @@ class MongoDatabase {
 
   async initialize(): Promise<void> {
     if (!this.initialized) {
-      this.initialized = this.bootstrapFromJson();
+      this.initialized = process.env.MONGODB_BOOTSTRAP_JSON === 'true'
+        ? this.bootstrapFromJson()
+        : Promise.resolve();
     }
     await this.initialized;
   }
@@ -91,7 +93,8 @@ class MongoDatabase {
 
   async getPredictionsByUserId(userId: string): Promise<PredictionResult[]> {
     await this.initialize();
-    return (await (await this.getDatabase()).collection<PredictionResult>('predictions').find({ $or: [{ userId }, { userId: 'usr_demo_101' }] }).sort({ timestamp: -1 }).toArray());
+    const records = await (await this.getDatabase()).collection<PredictionResult>('predictions').find({ userId }, { projection: { _id: 0 } }).sort({ timestamp: -1 }).toArray();
+    return records as PredictionResult[];
   }
 
   async deletePrediction(id: string): Promise<boolean> {
@@ -102,7 +105,7 @@ class MongoDatabase {
 
   async getChatHistory(userId: string): Promise<ChatMessage[]> {
     await this.initialize();
-    const messages = await (await this.getDatabase()).collection<ChatMessage & { userId: string }>('aiChats').find({ $or: [{ userId }, { userId: 'usr_demo_101' }] }, { projection: { _id: 0, userId: 0 } }).sort({ timestamp: 1 }).toArray();
+    const messages = await (await this.getDatabase()).collection<ChatMessage & { userId: string }>('aiChats').find({ userId }, { projection: { _id: 0, userId: 0 } }).sort({ timestamp: 1 }).toArray();
     return messages;
   }
 
@@ -114,7 +117,7 @@ class MongoDatabase {
 
   async getNotifications(userId: string): Promise<NotificationItem[]> {
     await this.initialize();
-    return await (await this.getDatabase()).collection<NotificationItem & { userId: string }>('notifications').find({ $or: [{ userId }, { userId: 'usr_demo_101' }] }, { projection: { _id: 0, userId: 0 } }).sort({ timestamp: -1 }).toArray();
+    return await (await this.getDatabase()).collection<NotificationItem & { userId: string }>('notifications').find({ userId }, { projection: { _id: 0, userId: 0 } }).sort({ timestamp: -1 }).toArray();
   }
 
   async markNotificationRead(userId: string, notifId: string): Promise<void> {

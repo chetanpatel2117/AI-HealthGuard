@@ -18,18 +18,22 @@ export const PredictionPage: React.FC<PredictionPageProps> = ({
   onNavigateToOCR,
   prefillData,
 }) => {
+  const getNumber = (value: number | string | undefined) => Number(value) || 0;
+  const getGender = (value: string | undefined): PredictionInput['gender'] =>
+    value === 'Male' || value === 'Other' ? value : 'Female';
+
   const [formData, setFormData] = useState<PredictionInput>({
-    fullName: prefillData?.fullName || 'Sarah Jenkins',
-    age: prefillData?.age || 42,
-    gender: prefillData?.gender || 'Female',
-    weight: prefillData?.weight || 74,
-    height: prefillData?.height || 165,
+    fullName: prefillData?.fullName || '',
+    age: getNumber(prefillData?.age),
+    gender: getGender(prefillData?.gender),
+    weight: getNumber(prefillData?.weight),
+    height: getNumber(prefillData?.height),
     pregnancies: prefillData?.pregnancies !== undefined ? prefillData.pregnancies : 2,
-    glucose: prefillData?.glucose || 148,
-    bloodPressure: prefillData?.bloodPressure || 82,
-    skinThickness: prefillData?.skinThickness || 28,
-    insulin: prefillData?.insulin || 125,
-    diabetesPedigree: prefillData?.diabetesPedigree || 0.62,
+    glucose: getNumber(prefillData?.glucose),
+    bloodPressure: getNumber(prefillData?.bloodPressure),
+    skinThickness: getNumber(prefillData?.skinThickness),
+    insulin: getNumber(prefillData?.insulin),
+    diabetesPedigree: getNumber(prefillData?.diabetesPedigree),
     smokingStatus: prefillData?.smokingStatus || 'Never',
     alcoholConsumption: prefillData?.alcoholConsumption || 'Occasional',
     exerciseLevel: prefillData?.exerciseLevel || 'Moderate',

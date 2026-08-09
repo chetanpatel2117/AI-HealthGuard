@@ -7,18 +7,18 @@ import { useAuth } from '../context/AuthContext';
 import { User, Phone, Mail, Heart, Scale, Shield, Save, CheckCircle2 } from 'lucide-react';
 
 export const ProfilePage: React.FC = () => {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const [saved, setSaved] = useState(false);
 
-  const [fullName, setFullName] = useState(user?.fullName || 'Sarah Jenkins');
-  const [email, setEmail] = useState(user?.email || 'sarah.jenkins@example.com');
-  const [phone, setPhone] = useState(user?.phone || '+1 (555) 234-5678');
-  const [age, setAge] = useState(user?.age || 42);
-  const [gender, setGender] = useState(user?.gender || 'Female');
-  const [weight, setWeight] = useState(user?.weight || 74);
-  const [height, setHeight] = useState(user?.height || 165);
+  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [age, setAge] = useState<number>(user?.age || 0);
+  const [gender, setGender] = useState<'Male' | 'Female' | 'Other'>(user?.gender || 'Female');
+  const [weight, setWeight] = useState<number>(user?.weight || 0);
+  const [height, setHeight] = useState<number>(user?.height || 0);
   const [bloodGroup, setBloodGroup] = useState('O+ Positive');
-  const [physician, setPhysician] = useState('Dr. Robert Vance, MD (Endocrinology)');
+  const [physician, setPhysician] = useState('');
 
   const [hypertension, setHypertension] = useState(true);
   const [highCholesterol, setHighCholesterol] = useState(false);
@@ -29,16 +29,7 @@ export const ProfilePage: React.FC = () => {
     setSaved(true);
 
     if (user) {
-      login('existing_token', {
-        ...user,
-        fullName,
-        email,
-        phone,
-        age,
-        gender,
-        weight,
-        height,
-      });
+      updateUser({ fullName, email, phone, age, gender, weight, height });
     }
 
     setTimeout(() => setSaved(false), 3000);

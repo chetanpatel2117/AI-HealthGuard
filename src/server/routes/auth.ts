@@ -107,9 +107,7 @@ router.post('/login', async (req: Request, res: Response) => {
 router.get('/me', async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    // Return demo user for instant seamless experience
-    const demo = await db.getUserById('usr_demo_101');
-    return res.json({ user: demo });
+    return res.status(401).json({ error: 'Authentication required' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -117,13 +115,11 @@ router.get('/me', async (req: Request, res: Response) => {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     const user = await db.getUserById(decoded.id);
     if (!user) {
-      const demo = await db.getUserById('usr_demo_101');
-      return res.json({ user: demo });
+      return res.status(401).json({ error: 'User not found' });
     }
     return res.json({ user });
   } catch (err) {
-    const demo = await db.getUserById('usr_demo_101');
-    return res.json({ user: demo });
+    return res.status(401).json({ error: 'Invalid token' });
   }
 });
 

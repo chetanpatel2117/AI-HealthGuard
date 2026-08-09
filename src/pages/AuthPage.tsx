@@ -13,12 +13,12 @@ export const AuthPage: React.FC = () => {
   const [error, setError] = useState('');
 
   // Form State
-  const [email, setEmail] = useState('sarah.jenkins@example.com');
-  const [password, setPassword] = useState('healthguard123');
-  const [fullName, setFullName] = useState('Sarah Jenkins');
-  const [age, setAge] = useState(42);
-  const [gender, setGender] = useState<'Male' | 'Female' | 'Other'>('Female');
-  const [phone, setPhone] = useState('+1 (555) 234-5678');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [age, setAge] = useState<number | ''>('');
+  const [gender, setGender] = useState<'Male' | 'Female' | 'Other' | ''>('');
+  const [phone, setPhone] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,26 +42,9 @@ export const AuthPage: React.FC = () => {
       if (!res.ok) {
         throw new Error(data.error || 'Authentication failed');
       }
-
       login(data.token, data.user);
     } catch (err: any) {
-      // Fallback demo user login for seamless access
-      if (!isRegister) {
-        login('demo_token_123', {
-          id: 'usr_demo_101',
-          fullName: fullName || 'Sarah Jenkins',
-          email: email || 'sarah.jenkins@example.com',
-          age: 42,
-          gender: 'Female',
-          weight: 74,
-          height: 165,
-          phone: '+1 (555) 234-5678',
-          role: 'Patient',
-          createdAt: new Date().toISOString(),
-        });
-      } else {
-        setError(err.message || 'Registration error');
-      }
+      setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -139,7 +122,7 @@ export const AuthPage: React.FC = () => {
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="e.g. Sarah Jenkins"
+                    placeholder="Full Name"
                     className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
@@ -183,7 +166,10 @@ export const AuthPage: React.FC = () => {
                   <input
                     type="number"
                     value={age}
-                    onChange={(e) => setAge(Number(e.target.value))}
+                    onChange={(e) => setAge(e.target.value === '' ? '' : parseInt(e.target.value))}
+                    placeholder="Age"
+                    min={0}
+                    max={120}
                     className="w-full px-3 py-2.5 rounded-2xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
@@ -194,6 +180,7 @@ export const AuthPage: React.FC = () => {
                     onChange={(e) => setGender(e.target.value as any)}
                     className="w-full px-3 py-2.5 rounded-2xl border border-slate-200 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 bg-white"
                   >
+                    <option value="">Select Gender</option>
                     <option value="Female">Female</option>
                     <option value="Male">Male</option>
                     <option value="Other">Other</option>
